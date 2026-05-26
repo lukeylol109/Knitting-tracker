@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knitting Companion Ultimate</title>
+
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+    background:#f5eff7;
+    margin:0;
+    padding:16px;
+    color:#2d2d2d;
+}
+.container{
+    max-width:900px;
+    margin:auto;
+}
+h1{
+    text-align:center;
+    color:#69467a;
+}
+.card{
+    background:white;
+    border-radius:22px;
+    padding:18px;
+    margin-bottom:18px;
+    box-shadow:0 5px 12px rgba(0,0,0,0.08);
+}
+button{
+    border:none;
+    border-radius:16px;
+    padding:14px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+}
+.primary{background:#ffe066;}
+.secondary{background:#e8d8f2;}
+.danger{background:#f5c2c2;}
+.success{background:#cdeccf;}
+.row{
+    display:flex;
+    gap:10px;
+}
+.full{
+    width:100%;
+}
+.counter{
+    font-size:60px;
+    text-align:center;
+    font-weight:700;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+.stitch{
+    background:#d9c6e6;
+}
+.feed{
+    max-height:250px;
+    overflow-y:auto;
+    background:#fafafa;
+    border-radius:14px;
+    padding:10px;
+}
+.feed-item{
+    background:white;
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:12px;
+    border-left:5px solid #c8a8da;
+}
+input, textarea{
+    width:100%;
+    border:none;
+    background:#f2f2f2;
+    border-radius:14px;
+    padding:14px;
+    box-sizing:border-box;
+    font-size:16px;
+}
+textarea{
+    min-height:120px;
+}
+.project-item{
+    background:#fafafa;
+    border-radius:14px;
+    padding:12px;
+    margin-bottom:10px;
+}
+.small{
+    color:#666;
+    font-size:14px;
+}
+.hidden{
+    display:none;
+}
+.dark{
+    background:#1f1f1f;
+    color:white;
+}
+.dark .card{
+    background:#333;
+}
+.dark input,
+.dark textarea{
+    background:#444;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🧶 Knitting Companion Ultimate</h1>
+
+<div class="card">
+<h2>Create / Switch Project</h2>
+
+<input id="newProjectName" placeholder="New project name">
+
+<div class="row" style="margin-top:10px;">
+<button class="primary full" onclick="createProject()">Create Project</button>
+</div>
+
+<div id="projectList" style="margin-top:15px;"></div>
+</div>
+
+<div id="appSection" class="hidden">
+
+<div class="card">
+<h2 id="currentProjectTitle">Current Project</h2>
+
+<div class="small" id="createdDate"></div>
+</div>
+
+<div class="card">
+<h2>Stitch Counter</h2>
+<div class="counter" id="stitchCount">0</div>
+
+<div class="row">
+<button class="secondary full" onclick="changeStitches(-1)">−</button>
+<button class="primary full" onclick="changeStitches(1)">+</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Row Counter</h2>
+
+<div class="counter" id="rowCount">0</div>
+
+<div class="row">
+<button class="secondary full" onclick="changeRows(-1)">−</button>
+<button class="primary full" onclick="changeRows(1)">+</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Stitch Logger</h2>
+
+<div class="grid">
+<button class="stitch" onclick="logStitch('Knit')">Knit</button>
+<button class="stitch" onclick="logStitch('Purl')">Purl</button>
+<button class="stitch" onclick="logStitch('YO')">YO</button>
+<button class="stitch" onclick="logStitch('SSK')">SSK</button>
+<button class="stitch" onclick="logStitch('SLP')">SLP</button>
+<button class="stitch" onclick="logStitch('SLK')">SLK</button>
+<button class="stitch" onclick="logStitch('K2tog')">K2tog</button>
+<button class="stitch" onclick="logStitch('P2tog')">P2tog</button>
+<button class="stitch" onclick="logStitch('Cable')">Cable</button>
+</div>
+
+<div class="row" style="margin-top:10px;">
+<button class="success full" onclick="undoLast()">Undo Last</button>
+<button class="danger full" onclick="clearHistory()">Clear History</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Recent Stitches</h2>
+<div class="feed" id="feed"></div>
+</div>
+
+<div class="card">
+<h2>Pattern Notes</h2>
+<textarea id="notes" placeholder="Pattern notes..."></textarea>
+</div>
+
+<div class="card">
+<h2>Pattern Repeat</h2>
+
+<input id="repeatPattern" placeholder="Example: K2 P2 repeat">
+
+<div class="row" style="margin-top:10px;">
+<button class="primary full" onclick="saveRepeat()">Save Repeat</button>
+</div>
+
+<div id="savedRepeat" style="margin-top:10px;font-weight:600;"></div>
+</div>
+
+<div class="card">
+<h2>Yarn & Needle Info</h2>
+
+<input id="yarnInfo" placeholder="Yarn used">
+<br><br>
+<input id="needleInfo" placeholder="Needle size">
+</div>
+
+<div class="card">
+<h2>Archive / Delete</h2>
+
+<div class="row">
+<button class="secondary full" onclick="archiveProject()">Archive</button>
+<button class="danger full" onclick="deleteProject()">Delete</button>
+</div>
+</div>
+
+<div class="card">
+<h2>Theme</h2>
+
+<div class="row">
+<button class="secondary full" onclick="setTheme('light')">Light</button>
+<button class="secondary full" onclick="setTheme('dark')">Dark</button>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let projects = JSON.parse(localStorage.getItem('knitProjects') || '{}');
+let currentProject = localStorage.getItem('currentProject') || null;
+
+function saveProjects(){
+    localStorage.setItem('knitProjects', JSON.stringify(projects));
+}
+
+function createProject(){
+    const name = document.getElementById('newProjectName').value.trim();
+
+    if(!name) return;
+
+    if(projects[name]){
+        alert('Project already exists.');
+        return;
+    }
+
+    projects[name] = {
+        created: new Date().toLocaleDateString(),
+        archived:false,
+        stitches:0,
+        rows:0,
+        history:[],
+        notes:'',
+        repeat:'',
+        yarn:'',
+        needles:''
+    };
+
+    currentProject = name;
+
+    saveProjects();
+    localStorage.setItem('currentProject', currentProject);
+
+    renderProjects();
+    loadProject();
+}
+
+function renderProjects(){
+    const list = document.getElementById('projectList');
+    list.innerHTML = '';
+
+    const names = Object.keys(projects);
+
+    if(names.length === 0){
+        list.innerHTML = '<div class="small">No projects yet.</div>';
+        return;
+    }
+
+    names.forEach(name => {
+        const project = projects[name];
+
+        const div = document.createElement('div');
+        div.className = 'project-item';
+
+        div.innerHTML = `
+            <strong>${name}</strong><br>
+            <span class="small">${project.archived ? 'Archived' : 'Active'} • Created ${project.created}</span>
+            <div class="row" style="margin-top:10px;">
+                <button class="primary full" onclick="switchProject('${name}')">Open</button>
+            </div>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+function switchProject(name){
+    currentProject = name;
+    localStorage.setItem('currentProject', name);
+    loadProject();
+}
+
+function loadProject(){
+
+    if(!currentProject || !projects[currentProject]){
+        return;
+    }
+
+    document.getElementById('appSection').classList.remove('hidden');
+
+    const project = projects[currentProject];
+
+    document.getElementById('currentProjectTitle').innerText = currentProject;
+    document.getElementById('createdDate').innerText = 'Created: ' + project.created;
+
+    document.getElementById('stitchCount').innerText = project.stitches;
+    document.getElementById('rowCount').innerText = project.rows;
+
+    document.getElementById('notes').value = project.notes;
+    document.getElementById('repeatPattern').value = project.repeat;
+    document.getElementById('savedRepeat').innerText = project.repeat;
+
+    document.getElementById('yarnInfo').value = project.yarn;
+    document.getElementById('needleInfo').value = project.needles;
+
+    renderFeed();
+}
+
+function updateProject(){
+    if(!currentProject) return;
+
+    const project = projects[currentProject];
+
+    project.notes = document.getElementById('notes').value;
+    project.yarn = document.getElementById('yarnInfo').value;
+    project.needles = document.getElementById('needleInfo').value;
+
+    saveProjects();
+}
+
+function changeStitches(amount){
+    const project = projects[currentProject];
+
+    project.stitches += amount;
+
+    if(project.stitches < 0) project.stitches = 0;
+
+    saveProjects();
+    loadProject();
+}
+
+function changeRows(amount){
+    const project = projects[currentProject];
+
+    project.rows += amount;
+
+    if(project.rows < 0) project.rows = 0;
+
+    saveProjects();
+    loadProject();
+}
+
+function logStitch(stitch){
+    const project = projects[currentProject];
+
+    project.history.push({
+        stitch: stitch,
+        time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+    });
+
+    if(project.history.length > 200){
+        project.history.shift();
+    }
+
+    saveProjects();
+    renderFeed();
+}
+
+function renderFeed(){
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '';
+
+    const history = projects[currentProject].history;
+
+    if(history.length === 0){
+        feed.innerHTML = '<div class="small">No stitches logged.</div>';
+        return;
+    }
+
+    [...history].reverse().forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'feed-item';
+        div.innerHTML = `<strong>${item.stitch}</strong><br><span class="small">${item.time}</span>`;
+        feed.appendChild(div);
+    });
+}
+
+function undoLast(){
+    projects[currentProject].history.pop();
+    saveProjects();
+    renderFeed();
+}
+
+function clearHistory(){
+    if(confirm('Clear stitch history?')){
+        projects[currentProject].history = [];
+        saveProjects();
+        renderFeed();
+    }
+}
+
+function saveRepeat(){
+    projects[currentProject].repeat = document.getElementById('repeatPattern').value;
+    saveProjects();
+    loadProject();
+}
+
+function archiveProject(){
+    projects[currentProject].archived = true;
+    saveProjects();
+    renderProjects();
+    alert('Project archived.');
+}
+
+function deleteProject(){
+
+    if(confirm('Delete this project permanently?')){
+
+        delete projects[currentProject];
+
+        saveProjects();
+
+        currentProject = null;
+        localStorage.removeItem('currentProject');
+
+        document.getElementById('appSection').classList.add('hidden');
+
+        renderProjects();
+    }
+}
+
+function setTheme(mode){
+
+    if(mode === 'dark'){
+        document.body.classList.add('dark');
+    } else {
+        document.body.classList.remove('dark');
+    }
+
+    localStorage.setItem('theme', mode);
+}
+
+document.getElementById('notes').addEventListener('input', updateProject);
+document.getElementById('yarnInfo').addEventListener('input', updateProject);
+document.getElementById('needleInfo').addEventListener('input', updateProject);
+
+if(localStorage.getItem('theme') === 'dark'){
+    document.body.classList.add('dark');
+}
+
+renderProjects();
+
+if(currentProject){
+    loadProject();
+}
+
+</script>
+
+</body>
+</html>
